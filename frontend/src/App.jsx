@@ -11,7 +11,6 @@ import LandingPage from "./pages/LandingPage/LandingPage";
 import Login from "./pages/Auth/Login";
 import SignUp from "./pages/Auth/SignUp";
 
-import User from "./pages/User/User";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile/Profile";
 import EditProfile from "./pages/Profile/EditProfile";
@@ -38,15 +37,6 @@ export default function App() {
 
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="privacy-policy" element={<PrivacyPolicy />} />
-
-            <Route
-              path="/user"
-              element={
-                <ProtectedRoute>
-                  <User />
-                </ProtectedRoute>
-              }
-            />
 
             <Route
               path="/dashboard"
