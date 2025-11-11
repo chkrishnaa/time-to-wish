@@ -15,6 +15,14 @@ const ProfileDropdown = ({
   const { darkMode } = useTheme();
   const navigate = useNavigate();
 
+  const handleProfileClick = () => {
+    navigate("/profile");
+    // Close dropdown by toggling it off
+    if (isOpen) {
+      onToggle({ stopPropagation: () => {} });
+    }
+  };
+
   return (
     <div className="relative">
       <button
@@ -107,16 +115,16 @@ const ProfileDropdown = ({
             </p>
           </div>
 
-          <a
-            className={`block px-4 py-2 text-sm ${
+          <button
+            className={`w-full text-left block px-4 py-2 text-sm ${
               darkMode
                 ? "text-gray-400 hover:bg-gray-800"
                 : "text-gray-700 hover:bg-gray-50"
             } transition-colors cursor-pointer`}
-            onClick={() => navigate("/profile")}
+            onClick={handleProfileClick}
           >
             View Profile
-          </a>
+          </button>
           <div
             className={`border-t ${
               darkMode ? "border-gray-700" : "border-gray-100"

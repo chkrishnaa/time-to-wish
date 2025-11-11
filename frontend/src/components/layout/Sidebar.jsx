@@ -375,7 +375,7 @@ const Sidebar = ({
                 onCollapseChange(true);
               }
             }}
-            className={`w-full mb-4 py-2 px-3 rounded-lg flex items-center justify-center ${
+            className={`w-full mb-4 py-1 px-3 rounded-lg flex items-center justify-center ${
               darkMode
                 ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-700"

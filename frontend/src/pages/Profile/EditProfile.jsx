@@ -8,6 +8,8 @@ import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
 import uploadImage from "../../utils/uploadImage";
+import { parsePhoneNumber, formatPhoneNumber } from "../../utils/phoneFormatter";
+import { getCountryCode, getCountryNames } from "../../utils/countryCodes";
 
 const EditProfile = () => {
   const { darkMode } = useTheme();
@@ -24,6 +26,10 @@ const EditProfile = () => {
     notificationPreferences: [],
     about: "",
     location: "",
+    city: "",
+    state: "",
+    country: "",
+    countryCode: "",
     remindMeTimePreference: "09:00",
     themePreference: "system",
     avatar: "",
@@ -50,6 +56,10 @@ const EditProfile = () => {
         notificationPreferences: profile.notificationPreferences || ["Email"],
         about: profile.about || "",
         location: profile.location || "",
+        city: profile.city || "",
+        state: profile.state || "",
+        country: profile.country || "",
+        countryCode: profile.countryCode || "",
         remindMeTimePreference: profile.remindMeTimePreference || "09:00",
         themePreference: profile.themePreference || "system",
         avatar: profile.avatar || "",
@@ -62,6 +72,10 @@ const EditProfile = () => {
         notificationPreferences: profile.notificationPreferences || ["Email"],
         about: profile.about || "",
         location: profile.location || "",
+        city: profile.city || "",
+        state: profile.state || "",
+        country: profile.country || "",
+        countryCode: profile.countryCode || "",
         remindMeTimePreference: profile.remindMeTimePreference || "09:00",
         themePreference: profile.themePreference || "system",
         avatar: profile.avatar || "",
@@ -83,10 +97,19 @@ const EditProfile = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => {
+      const newData = { ...prev, [name]: value };
+      
+      // Auto-set country code when country is selected
+      if (name === "country" && value) {
+        const code = getCountryCode(value);
+        if (code) {
+          newData.countryCode = code;
+        }
+      }
+      
+      return newData;
+    });
   };
 
   const handleCheckboxChange = (value) => {
@@ -304,13 +327,18 @@ const EditProfile = () => {
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleInputChange}
-                placeholder="+1234567890"
+                placeholder="+91 - 12345 67890"
                 className={`w-full px-4 py-2 rounded-lg border ${
                   darkMode
                     ? "bg-gray-700 text-gray-200 border-gray-600"
                     : "bg-white text-gray-900 border-gray-300"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
               />
+              {formData.phoneNumber && (
+                <p className={`text-xs mt-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  Formatted: {formatPhoneNumber(formData.phoneNumber)}
+                </p>
+              )}
             </div>
 
             {/* Notification Preferences */}
@@ -338,23 +366,74 @@ const EditProfile = () => {
               </div>
             </div>
 
-            {/* Location */}
-            <div>
-              <label className={`text-sm font-medium mb-2 block ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-                Location / City (Optional)
-              </label>
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleInputChange}
-                placeholder="City, Country"
-                className={`w-full px-4 py-2 rounded-lg border ${
-                  darkMode
-                    ? "bg-gray-700 text-gray-200 border-gray-600"
-                    : "bg-white text-gray-900 border-gray-300"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              />
+            {/* Location Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* City */}
+              <div>
+                <label className={`text-sm font-medium mb-2 block ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                  City (Optional)
+                </label>
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  placeholder="City"
+                  className={`w-full px-4 py-2 rounded-lg border ${
+                    darkMode
+                      ? "bg-gray-700 text-gray-200 border-gray-600"
+                      : "bg-white text-gray-900 border-gray-300"
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                />
+              </div>
+
+              {/* State */}
+              <div>
+                <label className={`text-sm font-medium mb-2 block ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                  State (Optional)
+                </label>
+                <input
+                  type="text"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleInputChange}
+                  placeholder="State"
+                  className={`w-full px-4 py-2 rounded-lg border ${
+                    darkMode
+                      ? "bg-gray-700 text-gray-200 border-gray-600"
+                      : "bg-white text-gray-900 border-gray-300"
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                />
+              </div>
+
+              {/* Country */}
+              <div>
+                <label className={`text-sm font-medium mb-2 block ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                  Country (Optional)
+                </label>
+                <select
+                  name="country"
+                  value={formData.country}
+                  onChange={handleInputChange}
+                  className={`w-full px-4 py-2 rounded-lg border ${
+                    darkMode
+                      ? "bg-gray-700 text-gray-200 border-gray-600"
+                      : "bg-white text-gray-900 border-gray-300"
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                >
+                  <option value="">Select Country</option>
+                  {getCountryNames().map((country) => (
+                    <option key={country} value={country}>
+                      {country}
+                    </option>
+                  ))}
+                </select>
+                {formData.country && formData.countryCode && (
+                  <p className={`text-xs mt-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    Country Code: {formData.countryCode}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Remind Me Time Preference */}

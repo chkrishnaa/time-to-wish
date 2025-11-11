@@ -86,7 +86,7 @@ export const NAVIGATION_MENU = [
   },
   {
     id: "profile",
-    name: "Profile",
+    name: "Profile Settings",
     icon: UserCircle
   },
 ];

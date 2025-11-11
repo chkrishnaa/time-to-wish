@@ -43,6 +43,10 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid Email or Password." });
     }
 
+    // Update lastLogin timestamp
+    user.lastLogin = new Date();
+    await user.save();
+
     res.json({
       _id: user._id,
       name: user.name,

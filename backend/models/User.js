@@ -34,6 +34,26 @@ const userSchema = mongoose.Schema(
       type: String,
       default: "",
     },
+    city: {
+      type: String,
+      default: "",
+    },
+    state: {
+      type: String,
+      default: "",
+    },
+    country: {
+      type: String,
+      default: "",
+    },
+    countryCode: {
+      type: String,
+      default: "",
+    },
+    lastLogin: {
+      type: Date,
+      default: null,
+    },
     remindMeTimePreference: {
       type: String,
       default: "09:00", // Default 9 AM

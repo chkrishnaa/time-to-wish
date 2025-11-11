@@ -8,7 +8,30 @@ exports.getProfile = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.json(user);
+    // Calculate status based on lastLogin (inactive if > 30 days)
+    let accountStatus = user.accountStatus || "Active";
+    if (user.lastLogin) {
+      const daysSinceLogin = Math.floor(
+        (new Date() - new Date(user.lastLogin)) / (1000 * 60 * 60 * 24)
+      );
+      if (daysSinceLogin >= 30) {
+        accountStatus = "Inactive";
+      }
+    } else if (user.createdAt) {
+      // If never logged in, check account creation date
+      const daysSinceCreation = Math.floor(
+        (new Date() - new Date(user.createdAt)) / (1000 * 60 * 60 * 24)
+      );
+      if (daysSinceCreation >= 30) {
+        accountStatus = "Inactive";
+      }
+    }
+
+    // Return user with calculated status
+    const userObj = user.toObject();
+    userObj.accountStatus = accountStatus;
+
+    res.json(userObj);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -23,6 +46,10 @@ exports.updateProfile = async (req, res) => {
       notificationPreferences,
       about,
       location,
+      city,
+      state,
+      country,
+      countryCode,
       remindMeTimePreference,
       themePreference,
     } = req.body;
@@ -44,6 +71,18 @@ exports.updateProfile = async (req, res) => {
     }
     if (about !== undefined) user.about = about || "";
     if (location !== undefined) user.location = location || "";
+    if (city !== undefined) user.city = city || "";
+    if (state !== undefined) user.state = state || "";
+    if (country !== undefined) {
+      user.country = country || "";
+      // Auto-set country code if country is provided
+      if (country && !countryCode) {
+        // You can add a mapping here for country codes
+        // For now, we'll leave it empty if not provided
+        user.countryCode = "";
+      }
+    }
+    if (countryCode !== undefined) user.countryCode = countryCode || "";
     if (remindMeTimePreference !== undefined) {
       user.remindMeTimePreference = remindMeTimePreference;
     }
