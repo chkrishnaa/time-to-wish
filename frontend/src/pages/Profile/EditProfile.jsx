@@ -223,9 +223,9 @@ const EditProfile = () => {
         {/* Form */}
         <form onSubmit={handleSubmit}>
           <div
-            className={`rounded-xl border p-6 ${
-              darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-            } shadow-sm space-y-6`}
+            className={`rounded-xl border p-6 bg-gradient-to-br ${
+              darkMode ? "from-gray-800 to-gray-950 border-gray-700" : "from-gray-100 to-blue-200 border-blue-300"
+            } space-y-6`}
           >
             {/* Profile Picture */}
             <div>

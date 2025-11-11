@@ -111,8 +111,8 @@ const Profile = () => {
         {/* Tab Navigation */}
         <div className="mb-6">
           <div
-            className={`flex gap-2 p-1 rounded-lg ${
-              darkMode ? "bg-gray-800" : "bg-gray-100"
+            className={`flex gap-2 p-1 rounded-lg bg-gradient-to-br ${
+              darkMode ? "from-gray-800 to-gray-950" : "bg-gray-100"
             }`}
           >
             <button
@@ -150,10 +150,10 @@ const Profile = () => {
 
         {/* Tab Content */}
         <div
-          className={`rounded-xl border p-6 ${
+          className={`rounded-xl border p-6 bg-gradient-to-br ${
             darkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
+              ? "from-gray-800 to-gray-950 border-gray-700"
+              : "from-gray-100 to-blue-200 border-blue-300"
           } shadow-sm`}
         >
           {activeTab === "profile" ? (
