@@ -5,9 +5,7 @@ import { useTheme } from "../../context/ThemeContext";
 const CollectionSearchSort = ({ 
   collections, 
   onFilteredCollectionsChange, 
-  isDashboard = false,
-  itemsPerPage,
-  onItemsPerPageChange 
+  isDashboard = false
 }) => {
   const { darkMode } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
@@ -139,34 +137,6 @@ const CollectionSearchSort = ({
             </span>
           </button>
         </div>
-
-        {/* Items Per Page Selector - Dashboard Only */}
-        {isDashboard && onItemsPerPageChange && (
-          <div className="flex items-center gap-2">
-            <label
-              className={`text-sm font-medium ${
-                darkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              Collections Per page :
-            </label>
-            <select
-              value={itemsPerPage}
-              onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-              className={`px-3 py-2 rounded-lg text-sm border ${
-                darkMode
-                  ? "bg-gray-800 text-gray-200 border-gray-600"
-                  : "bg-white text-gray-900 border-gray-300"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={15}>15</option>
-              <option value={20}>20</option>
-              <option value={25}>25</option>
-            </select>
-          </div>
-        )}
       </div>
     </div>
   );

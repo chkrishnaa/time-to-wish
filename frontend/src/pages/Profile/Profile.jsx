@@ -110,10 +110,10 @@ const Profile = () => {
                 <img
                   src={profile.avatar}
                   alt={profile.name}
-                  className="w-24 h-24 rounded-full object-cover border-2 border-blue-500"
+                  className="p-0.5 w-24 h-24 rounded-full object-cover border-2 border-blue-500"
                 />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center border-2 border-blue-500">
+                <div className="p-0.5 w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center border-2 border-blue-500">
                   <User className="w-12 h-12 text-white" />
                 </div>
               )}

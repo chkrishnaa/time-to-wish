@@ -4,9 +4,7 @@ import { useTheme } from "../../context/ThemeContext";
 
 const BirthdaySearchSort = ({ 
   birthdays, 
-  onFilteredBirthdaysChange, 
-  itemsPerPage,
-  onItemsPerPageChange 
+  onFilteredBirthdaysChange
 }) => {
   const { darkMode } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,7 +75,7 @@ const BirthdaySearchSort = ({
   };
 
   return (
-    <div className="space-y-3 mb-6">
+    <div className="space-y-3">
       {/* Search Inputs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Name Search */}
@@ -123,7 +121,7 @@ const BirthdaySearchSort = ({
 
       {/* Sort Options and Items Per Page */}
       <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => handleSortChange("name")}
             className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
@@ -178,34 +176,6 @@ const BirthdaySearchSort = ({
             </span>
           </button>
         </div>
-
-        {/* Items Per Page Selector */}
-        {onItemsPerPageChange && (
-          <div className="flex items-center gap-2">
-            <label
-              className={`text-sm font-medium ${
-                darkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              Birthdays Per page :
-            </label>
-            <select
-              value={itemsPerPage}
-              onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-              className={`px-3 py-2 rounded-lg text-sm border ${
-                darkMode
-                  ? "bg-gray-800 text-gray-200 border-gray-600"
-                  : "bg-white text-gray-900 border-gray-300"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={15}>15</option>
-              <option value={20}>20</option>
-              <option value={25}>25</option>
-            </select>
-          </div>
-        )}
       </div>
     </div>
   );

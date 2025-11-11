@@ -9,6 +9,7 @@ import { Folder, Plus, ArrowLeft, Trash2, Calendar, Edit2 } from "lucide-react";
 import moment from "moment";
 import CollectionSearchSort from "../components/Utility/CollectionSearchSort";
 import Pagination from "../components/Utility/Pagination";
+import CollapsibleSection from "../components/Utility/CollapsibleSection";
 
 const Dashboard = () => {
   const { darkMode } = useTheme();
@@ -166,17 +167,20 @@ const Dashboard = () => {
               Organize your birthdays into collections
             </p>
           </div>
-          <button
-            onClick={() => setShowCreateForm(!showCreateForm)}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 ${
-              darkMode
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
-          >
-            <Plus className="w-5 h-5" />
-            Create Collection
-          </button>
+          {/* Only show Create Collection button when form is not open and collections exist */}
+          {!showCreateForm && collections.length > 0 && (
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                darkMode
+                  ? "bg-blue-600 hover:bg-blue-700 text-white"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
+            >
+              <Plus className="w-5 h-5" />
+              Create Collection
+            </button>
+          )}
         </div>
 
         {/* Create/Edit Collection Form */}
@@ -291,7 +295,7 @@ const Dashboard = () => {
               Loading collections...
             </p>
           </div>
-        ) : collections.length === 0 ? (
+        ) : collections.length === 0 && !showCreateForm ? (
           <div className="text-center py-12">
             <Folder
               className={`w-16 h-16 mx-auto mb-4 ${
@@ -317,18 +321,52 @@ const Dashboard = () => {
               Create Your First Collection
             </button>
           </div>
-        ) : (
+        ) : collections.length > 0 ? (
           <>
-            {/* Search and Sort Component - Above Collections */}
+            {/* Filter Collections - Collapsible */}
             {collections.length > 0 && (
-              <div className="mb-6">
+              <CollapsibleSection title="Filter Collections">
                 <CollectionSearchSort
                   collections={collections}
                   onFilteredCollectionsChange={setFilteredCollections}
                   isDashboard={true}
-                  itemsPerPage={itemsPerPage}
-                  onItemsPerPageChange={setItemsPerPage}
                 />
+              </CollapsibleSection>
+            )}
+
+            {/* Items Per Page Selector - Outside Filter */}
+            {collections.length > 0 && (
+              <div
+                className={`mb-6 p-4 rounded-lg border ${
+                  darkMode
+                    ? "border-gray-700 bg-gray-800/50"
+                    : "border-gray-200 bg-gray-50/50"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <label
+                    className={`text-sm font-medium ${
+                      darkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  >
+                    Collections Per page:
+                  </label>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                    className={`px-3 py-2 rounded-lg text-sm border ${
+                      darkMode
+                        ? "bg-gray-700 text-gray-200 border-gray-600"
+                        : "bg-white text-gray-900 border-gray-300"
+                    } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={15}>15</option>
+                    <option value={20}>20</option>
+                    <option value={25}>25</option>
+                  </select>
+                </div>
               </div>
             )}
 
@@ -444,8 +482,8 @@ const Dashboard = () => {
                   ))}
                 </div>
 
-                {/* Pagination */}
-                {filteredCollections.length > itemsPerPage && (
+                {/* Pagination - Always show when there are items */}
+                {filteredCollections.length > 0 && (
                   <Pagination
                     darkMode={darkMode}
                     currentPage={currentPage}
@@ -460,7 +498,7 @@ const Dashboard = () => {
               </>
             )}
           </>
-        )}
+        ) : null}
       </div>
     </DashboardLayout>
   );

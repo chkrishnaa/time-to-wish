@@ -10,6 +10,7 @@ import { useTheme } from "../context/ThemeContext";
 import EmailAutocomplete from "../components/Utility/EmailAutocomplete";
 import BirthdaySearchSort from "../components/Utility/BirthdaySearchSort";
 import Pagination from "../components/Utility/Pagination";
+import CollapsibleSection from "../components/Utility/CollapsibleSection";
 
 const Birthdays = () => {
   const { darkMode } = useTheme();
@@ -24,6 +25,7 @@ const Birthdays = () => {
   const [form, setForm] = useState({ name: "", date: "", email: "" });
   const [editingBirthday, setEditingBirthday] = useState(null);
   const [editingCollection, setEditingCollection] = useState(null);
+  const [isAddBirthdayOpen, setIsAddBirthdayOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [creatingCollection, setCreatingCollection] = useState(false);
   const [loadingCollections, setLoadingCollections] = useState(false);
@@ -233,6 +235,7 @@ const Birthdays = () => {
       date: birthday.date,
       email: birthday.email || "",
     });
+    setIsAddBirthdayOpen(true); // Open the form when editing
   };
 
   const handleUpdateBirthday = async (e) => {
@@ -253,6 +256,7 @@ const Birthdays = () => {
       toast.success("Birthday updated!");
       setForm({ name: "", date: "", email: "" });
       setEditingBirthday(null);
+      setIsAddBirthdayOpen(false);
       if (selectedCollection) {
         fetchBirthdays(selectedCollection._id);
       }
@@ -282,6 +286,7 @@ const Birthdays = () => {
       toast.success("Birthday added");
       setForm({ name: "", date: "", email: "" });
       setEditingBirthday(null);
+      setIsAddBirthdayOpen(false);
       fetchBirthdays(selectedCollection._id);
     } catch (e) {
       toast.error(e?.response?.data?.message || "Failed to add");
@@ -336,7 +341,7 @@ const Birthdays = () => {
 
         {/* Main Content */}
         <div className="flex-1 min-w-0 overflow-y-auto">
-          <div className="container mx-auto px-4 pt-6 pb-10 max-w-4xl">
+          <div className="container mx-auto px-4 py-4 sm:py-0 max-w-4xl">
             {!selectedCollection ? (
               <div className="text-center py-12">
                 <h2
@@ -354,7 +359,7 @@ const Birthdays = () => {
                   Create a collection to start adding birthdays
                 </p>
                 <button
-                  onClick={() => setShowCreateForm(true)}
+                  onClick={() => navigate("/dashboard")}
                   className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-md hover:shadow-lg"
                 >
                   Create Your First Collection
@@ -381,105 +386,145 @@ const Birthdays = () => {
                   )}
                 </div>
 
-                <form
-                  onSubmit={editingBirthday ? handleUpdateBirthday : handleAdd}
-                  className={`mb-8 p-4 rounded-lg border ${
-                    darkMode
-                      ? "bg-gray-900 border-gray-700"
-                      : "bg-gray-50 border-gray-200"
-                  } grid grid-cols-1 sm:grid-cols-3 gap-3`}
+                {/* Add Birthday Form - Collapsible */}
+                <CollapsibleSection
+                  title={editingBirthday ? "Edit Birthday" : "Add Birthday"}
+                  defaultOpen={isAddBirthdayOpen}
+                  onToggle={(open) => setIsAddBirthdayOpen(open)}
                 >
-                  <div className="sm:col-span-3">
-                    <h3
-                      className={`text-sm font-semibold mb-2 ${
-                        darkMode ? "text-gray-200" : "text-gray-900"
-                      }`}
-                    >
-                      {editingBirthday ? "Edit Birthday" : "Add Birthday"}
-                    </h3>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Name"
-                    className={`rounded-lg px-3 py-2 ${
-                      darkMode
-                        ? "bg-gray-700 text-gray-200 border-gray-600"
-                        : "bg-white text-gray-900 border-gray-300"
-                    } border focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  />
-                  <input
-                    type="date"
-                    max={new Date().toISOString().split("T")[0]}
-                    className={`rounded-lg px-3 py-2 ${
-                      darkMode
-                        ? "bg-gray-700 text-gray-200 border-gray-600"
-                        : "bg-white text-gray-900 border-gray-300"
-                    } border focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                    value={form.date}
-                    onChange={(e) => {
-                      const selectedDate = e.target.value;
-                      const today = new Date().toISOString().split("T")[0];
-                      // Only allow dates up to today
-                      if (selectedDate <= today) {
-                        setForm({ ...form, date: selectedDate });
+                  <form
+                    onSubmit={
+                      editingBirthday ? handleUpdateBirthday : handleAdd
+                    }
+                    className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+                  >
+                    <div className="sm:col-span-3">
+                    
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Name"
+                      className={`rounded-lg px-3 py-2 ${
+                        darkMode
+                          ? "bg-gray-700 text-gray-200 border-gray-600"
+                          : "bg-white text-gray-900 border-gray-300"
+                      } border focus:outline-none focus:ring-2 focus:ring-blue-500 sm:col-span-2`}
+                      value={form.name}
+                      onChange={(e) =>
+                        setForm({ ...form, name: e.target.value })
                       }
-                    }}
-                    placeholder="dd/mm/yyyy"
-                  />
-                  <div className="sm:col-span-3">
-                    <EmailAutocomplete
-                      value={form.email}
-                      onChange={(email) => setForm({ ...form, email })}
-                      placeholder="@"
                     />
-                  </div>
-                  <div className="flex gap-2 sm:col-span-3">
-                    <button
-                      disabled={loading}
-                      className={`flex-1 rounded-lg px-4 py-2 text-white font-medium transition-colors ${
-                        loading
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-blue-600 hover:bg-blue-700"
-                      }`}
-                      type="submit"
-                    >
-                      {loading
-                        ? editingBirthday
-                          ? "Updating..."
-                          : "Adding..."
-                        : editingBirthday
-                        ? "Update"
-                        : "Add Birthday"}
-                    </button>
-                    {editingBirthday && (
+                    <input
+                      type="date"
+                      max={new Date().toISOString().split("T")[0]}
+                      className={`rounded-lg px-3 py-2 ${
+                        darkMode
+                          ? "bg-gray-700 text-gray-200 border-gray-600"
+                          : "bg-white text-gray-900 border-gray-300"
+                      } border focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                      value={form.date}
+                      onChange={(e) => {
+                        const selectedDate = e.target.value;
+                        const today = new Date().toISOString().split("T")[0];
+                        // Only allow dates up to today
+                        if (selectedDate <= today) {
+                          setForm({ ...form, date: selectedDate });
+                        }
+                      }}
+                      placeholder="dd/mm/yyyy"
+                    />
+                    <div className="sm:col-span-3">
+                      <EmailAutocomplete
+                        value={form.email}
+                        onChange={(email) => setForm({ ...form, email })}
+                        placeholder="@"
+                      />
+                    </div>
+                    <div className="flex gap-2 sm:col-span-3">
                       <button
-                        type="button"
-                        onClick={() => {
-                          setForm({ name: "", date: "", email: "" });
-                          setEditingBirthday(null);
-                        }}
-                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                          darkMode
-                            ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
-                            : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                        disabled={loading}
+                        className={`flex-1 rounded-lg px-4 py-2 text-white font-medium transition-colors ${
+                          loading
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-blue-600 hover:bg-blue-700"
+                        }`}
+                        type="submit"
+                      >
+                        {loading
+                          ? editingBirthday
+                            ? "Updating..."
+                            : "Adding..."
+                          : editingBirthday
+                          ? "Update"
+                          : "Add Birthday"}
+                      </button>
+                      {editingBirthday && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setForm({ name: "", date: "", email: "" });
+                            setEditingBirthday(null);
+                            setIsAddBirthdayOpen(false);
+                          }}
+                          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                            darkMode
+                              ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
+                              : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                          }`}
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                </CollapsibleSection>
+
+                {/* Filter Items - Collapsible */}
+                {birthdays.length > 0 && (
+                  <CollapsibleSection title="Filter Items">
+                    <BirthdaySearchSort
+                      birthdays={birthdays}
+                      onFilteredBirthdaysChange={setFilteredBirthdays}
+                    />
+                  </CollapsibleSection>
+                )}
+
+                {/* Items Per Page Selector - Outside Filter */}
+                {birthdays.length > 0 && (
+                  <div
+                    className={`mb-5 p-3 rounded-lg border ${
+                      darkMode
+                        ? "border-gray-700 bg-gray-800/50"
+                        : "border-gray-200 bg-gray-50/50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <label
+                        className={`text-sm font-semibold ${
+                          darkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
-                        Cancel
-                      </button>
-                    )}
+                        Items Per page :
+                      </label>
+                      <select
+                        value={itemsPerPage}
+                        onChange={(e) =>
+                          setItemsPerPage(Number(e.target.value))
+                        }
+                        className={`px-3 py-2 rounded-lg text-sm border ${
+                          darkMode
+                            ? "bg-gray-700 text-gray-200 border-gray-600"
+                            : "bg-white text-gray-900 border-gray-300"
+                        } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                      >
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={15}>15</option>
+                        <option value={20}>20</option>
+                        <option value={25}>25</option>
+                      </select>
+                    </div>
                   </div>
-                </form>
-
-                {/* Search and Sort Component */}
-                {birthdays.length > 0 && (
-                  <BirthdaySearchSort
-                    birthdays={birthdays}
-                    onFilteredBirthdaysChange={setFilteredBirthdays}
-                    itemsPerPage={itemsPerPage}
-                    onItemsPerPageChange={setItemsPerPage}
-                  />
                 )}
 
                 {/* Birthday Cards */}
@@ -495,7 +540,7 @@ const Birthdays = () => {
                   </div>
                 ) : (
                   <>
-                    <div className="space-y-3 grid sm:grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
+                    <div className="grid sm:grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-3">
                       {paginatedBirthdays.map((b) => (
                         <BirthdayCard
                           key={b._id}
@@ -506,8 +551,8 @@ const Birthdays = () => {
                       ))}
                     </div>
 
-                    {/* Pagination */}
-                    {filteredBirthdays.length > itemsPerPage && (
+                    {/* Pagination - Always show when there are items */}
+                    {filteredBirthdays.length > 0 && (
                       <Pagination
                         darkMode={darkMode}
                         currentPage={currentPage}

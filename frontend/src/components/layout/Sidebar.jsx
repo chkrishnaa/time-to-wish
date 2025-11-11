@@ -4,8 +4,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   Plus,
   Folder,
-  ChevronsLeft,
-  ChevronsRight,
   Edit2,
   Trash2,
   X,
@@ -384,8 +382,7 @@ const Sidebar = ({
             } transition-colors`}
             title="Collapse sidebar"
           >
-            <ChevronsLeft className="w-5 h-5" /> ⎯
-            <ChevronsRight className="w-5 h-5" />
+            <div className="flex items-center justify-center text-2xl transform scale-x-600 scale-y-100">⟺</div>
           </button>
         )}
 
