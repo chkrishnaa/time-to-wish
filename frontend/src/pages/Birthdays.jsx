@@ -7,6 +7,9 @@ import toast from "react-hot-toast";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import Sidebar from "../components/layout/Sidebar";
 import { useTheme } from "../context/ThemeContext";
+import EmailAutocomplete from "../components/Utility/EmailAutocomplete";
+import BirthdaySearchSort from "../components/Utility/BirthdaySearchSort";
+import Pagination from "../components/Utility/Pagination";
 
 const Birthdays = () => {
   const { darkMode } = useTheme();
@@ -15,7 +18,12 @@ const Birthdays = () => {
   const [collections, setCollections] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState(null);
   const [birthdays, setBirthdays] = useState([]);
-  const [form, setForm] = useState({ name: "", date: "" });
+  const [filteredBirthdays, setFilteredBirthdays] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [form, setForm] = useState({ name: "", date: "", email: "" });
+  const [editingBirthday, setEditingBirthday] = useState(null);
+  const [editingCollection, setEditingCollection] = useState(null);
   const [loading, setLoading] = useState(false);
   const [creatingCollection, setCreatingCollection] = useState(false);
   const [loadingCollections, setLoadingCollections] = useState(false);
@@ -103,8 +111,76 @@ const Birthdays = () => {
       fetchBirthdays(selectedCollection._id);
     } else {
       setBirthdays([]);
+      setFilteredBirthdays([]);
     }
   }, [selectedCollection]);
+
+  // Update filtered birthdays when birthdays change
+  useEffect(() => {
+    setFilteredBirthdays(birthdays);
+  }, [birthdays]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredBirthdays.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedBirthdays = filteredBirthdays.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filtered birthdays change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredBirthdays.length, itemsPerPage]);
+
+  const handleEditCollection = (collection) => {
+    if (!collection) {
+      // Clear editing state
+      setEditingCollection(null);
+      setNewCollectionName("");
+      setNewCollectionDescription("");
+      return;
+    }
+    setEditingCollection(collection);
+    setNewCollectionName(collection.name);
+    setNewCollectionDescription(collection.description || "");
+    setShowCreateForm(true);
+  };
+
+  const handleUpdateCollection = async () => {
+    if (!newCollectionName.trim()) {
+      toast.error("Please enter a collection name");
+      return;
+    }
+
+    if (!editingCollection) return;
+
+    setCreatingCollection(true);
+    try {
+      await axiosInstance.put(
+        API_PATHS.COLLECTIONS.UPDATE(editingCollection._id),
+        {
+          name: newCollectionName.trim(),
+          description: newCollectionDescription.trim() || "",
+        }
+      );
+      toast.success("Collection updated!");
+      setNewCollectionName("");
+      setNewCollectionDescription("");
+      setShowCreateForm(false);
+      setEditingCollection(null);
+      await fetchCollections();
+      // Update selected collection if it was the one being edited
+      if (selectedCollection?._id === editingCollection._id) {
+        const updated = await axiosInstance.get(
+          API_PATHS.COLLECTIONS.GET_BY_ID(editingCollection._id)
+        );
+        setSelectedCollection(updated.data);
+      }
+    } catch (e) {
+      toast.error(e?.response?.data?.message || "Failed to update collection");
+    } finally {
+      setCreatingCollection(false);
+    }
+  };
 
   const handleCreateCollection = async () => {
     if (!newCollectionName.trim()) {
@@ -122,6 +198,7 @@ const Birthdays = () => {
       setNewCollectionName("");
       setNewCollectionDescription("");
       setShowCreateForm(false);
+      setEditingCollection(null);
       await fetchCollections();
       setSelectedCollection(res.data.data);
     } catch (e) {
@@ -149,6 +226,43 @@ const Birthdays = () => {
     }
   };
 
+  const handleEditBirthday = (birthday) => {
+    setEditingBirthday(birthday);
+    setForm({
+      name: birthday.name,
+      date: birthday.date,
+      email: birthday.email || "",
+    });
+  };
+
+  const handleUpdateBirthday = async (e) => {
+    e.preventDefault();
+    if (!form.name || !form.date) {
+      return toast.error("Please fill all fields");
+    }
+
+    if (!editingBirthday) return;
+
+    setLoading(true);
+    try {
+      await axiosInstance.put(API_PATHS.BIRTHDAYS.UPDATE(editingBirthday._id), {
+        name: form.name,
+        date: form.date,
+        email: form.email || "",
+      });
+      toast.success("Birthday updated!");
+      setForm({ name: "", date: "", email: "" });
+      setEditingBirthday(null);
+      if (selectedCollection) {
+        fetchBirthdays(selectedCollection._id);
+      }
+    } catch (e) {
+      toast.error(e?.response?.data?.message || "Failed to update");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleAdd = async (e) => {
     e.preventDefault();
     if (!form.name || !form.date) {
@@ -166,7 +280,8 @@ const Birthdays = () => {
         collectionId: selectedCollection._id,
       });
       toast.success("Birthday added");
-      setForm({ name: "", date: "" });
+      setForm({ name: "", date: "", email: "" });
+      setEditingBirthday(null);
       fetchBirthdays(selectedCollection._id);
     } catch (e) {
       toast.error(e?.response?.data?.message || "Failed to add");
@@ -189,7 +304,7 @@ const Birthdays = () => {
 
   return (
     <DashboardLayout activeMenu="birthdays">
-      <div className="flex gap-6 h-full min-h-0">
+      <div className="flex h-full min-h-0">
         {/* Collections Sidebar */}
         <div
           className={`${
@@ -200,8 +315,14 @@ const Birthdays = () => {
             collections={collections}
             selectedCollection={selectedCollection}
             onSelectCollection={handleSelectCollection}
-            onCreateCollection={handleCreateCollection}
+            onCreateCollection={
+              editingCollection
+                ? handleUpdateCollection
+                : handleCreateCollection
+            }
             onDeleteCollection={handleDeleteCollection}
+            onEditCollection={handleEditCollection}
+            editingCollection={editingCollection}
             isCreating={creatingCollection}
             newCollectionName={newCollectionName}
             setNewCollectionName={setNewCollectionName}
@@ -261,13 +382,22 @@ const Birthdays = () => {
                 </div>
 
                 <form
-                  onSubmit={handleAdd}
+                  onSubmit={editingBirthday ? handleUpdateBirthday : handleAdd}
                   className={`mb-8 p-4 rounded-lg border ${
                     darkMode
                       ? "bg-gray-900 border-gray-700"
                       : "bg-gray-50 border-gray-200"
                   } grid grid-cols-1 sm:grid-cols-3 gap-3`}
                 >
+                  <div className="sm:col-span-3">
+                    <h3
+                      className={`text-sm font-semibold mb-2 ${
+                        darkMode ? "text-gray-200" : "text-gray-900"
+                      }`}
+                    >
+                      {editingBirthday ? "Edit Birthday" : "Add Birthday"}
+                    </h3>
+                  </div>
                   <input
                     type="text"
                     placeholder="Name"
@@ -298,37 +428,99 @@ const Birthdays = () => {
                     }}
                     placeholder="dd/mm/yyyy"
                   />
-                  <button
-                    disabled={loading}
-                    className={`rounded-lg px-4 py-2 text-white font-medium transition-colors ${
-                      loading
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-blue-600 hover:bg-blue-700"
-                    }`}
-                    type="submit"
-                  >
-                    {loading ? "Adding..." : "Add Birthday"}
-                  </button>
+                  <div className="sm:col-span-3">
+                    <EmailAutocomplete
+                      value={form.email}
+                      onChange={(email) => setForm({ ...form, email })}
+                      placeholder="@"
+                    />
+                  </div>
+                  <div className="flex gap-2 sm:col-span-3">
+                    <button
+                      disabled={loading}
+                      className={`flex-1 rounded-lg px-4 py-2 text-white font-medium transition-colors ${
+                        loading
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-blue-600 hover:bg-blue-700"
+                      }`}
+                      type="submit"
+                    >
+                      {loading
+                        ? editingBirthday
+                          ? "Updating..."
+                          : "Adding..."
+                        : editingBirthday
+                        ? "Update"
+                        : "Add Birthday"}
+                    </button>
+                    {editingBirthday && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForm({ name: "", date: "", email: "" });
+                          setEditingBirthday(null);
+                        }}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                          darkMode
+                            ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
+                            : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                        }`}
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
                 </form>
 
-                <div className="space-y-3 grid sm:grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
-                  {birthdays.length === 0 && (
-                    <div
-                      className={`text-center py-8 ${
-                        darkMode ? "text-gray-400" : "text-gray-500"
-                      }`}
-                    >
-                      No birthdays in this collection yet. Add one above!
+                {/* Search and Sort Component */}
+                {birthdays.length > 0 && (
+                  <BirthdaySearchSort
+                    birthdays={birthdays}
+                    onFilteredBirthdaysChange={setFilteredBirthdays}
+                    itemsPerPage={itemsPerPage}
+                    onItemsPerPageChange={setItemsPerPage}
+                  />
+                )}
+
+                {/* Birthday Cards */}
+                {filteredBirthdays.length === 0 ? (
+                  <div
+                    className={`text-center py-8 ${
+                      darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    {birthdays.length === 0
+                      ? "No birthdays in this collection yet. Add one above!"
+                      : "No birthdays found matching your search."}
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-3 grid sm:grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
+                      {paginatedBirthdays.map((b) => (
+                        <BirthdayCard
+                          key={b._id}
+                          birthday={b}
+                          onDelete={handleDelete}
+                          onEdit={handleEditBirthday}
+                        />
+                      ))}
                     </div>
-                  )}
-                  {birthdays.map((b) => (
-                    <BirthdayCard
-                      key={b._id}
-                      birthday={b}
-                      onDelete={handleDelete}
-                    />
-                  ))}
-                </div>
+
+                    {/* Pagination */}
+                    {filteredBirthdays.length > itemsPerPage && (
+                      <Pagination
+                        darkMode={darkMode}
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        startIndex={startIndex}
+                        itemsPerPage={itemsPerPage}
+                        totalItems={filteredBirthdays.length}
+                        setCurrentPage={setCurrentPage}
+                        color="purple"
+                      />
+                    )}
+                  </>
+                )}
               </>
             )}
           </div>

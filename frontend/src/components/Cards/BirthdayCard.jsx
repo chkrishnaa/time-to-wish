@@ -1,9 +1,9 @@
 import React from "react";
-import { User, Calendar, Trash2 } from "lucide-react";
+import { User, Calendar, Trash2, Edit2 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { calculateDetailedAge, formatBirthDate } from "../../utils/helper";
 
-const BirthdayCard = ({ birthday, onDelete }) => {
+const BirthdayCard = ({ birthday, onDelete, onEdit }) => {
   const { darkMode } = useTheme();
   const ageDetails = calculateDetailedAge(birthday.date);
   const formattedBirthDate = formatBirthDate(birthday.date);
@@ -16,29 +16,52 @@ const BirthdayCard = ({ birthday, onDelete }) => {
           : "border-blue-200 bg-blue-50/50"
       } shadow-sm hover:shadow-md transition-shadow relative`}
     >
-      {/* Delete Icon - Top Right */}
-      <button
-        onClick={() => onDelete(birthday._id)}
-        className={`absolute top-4 right-4 p-2 rounded-lg transition-colors ${
-          darkMode
-            ? "hover:bg-gray-700 text-gray-400 hover:text-red-400"
-            : "hover:bg-blue-100 text-gray-600 hover:text-red-600"
-        }`}
-        title="Delete birthday"
-      >
-        <Trash2 className="w-4 h-4" />
-      </button>
+      {/* Edit and Delete Icons - Top Right */}
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        {onEdit && (
+          <button
+            onClick={() => onEdit(birthday)}
+            className={`p-2 rounded-lg transition-colors ${
+              darkMode
+                ? "hover:bg-gray-700 text-gray-400 hover:text-blue-400"
+                : "hover:bg-blue-100 text-gray-600 hover:text-blue-600"
+            }`}
+            title="Edit birthday"
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+        )}
+        <button
+          onClick={() => onDelete(birthday._id)}
+          className={`p-2 rounded-lg transition-colors ${
+            darkMode
+              ? "hover:bg-gray-700 text-gray-400 hover:text-red-400"
+              : "hover:bg-blue-100 text-gray-600 hover:text-red-600"
+          }`}
+          title="Delete birthday"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
 
       {/* Header Section */}
-      <div className="flex items-start gap-4 mb-4 pr-8">
-        {/* Avatar with Cake Icon */}
-        <div
-          className={`w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 ${
-            darkMode ? "bg-blue-700" : "bg-blue-600"
-          }`}
-        >
-          <User className="w-7 h-7 text-white" />
-        </div>
+      <div className="flex items-start gap-4 mb-4 pr-20">
+        {/* Avatar with Profile Photo or User Icon */}
+        {birthday.avatar ? (
+          <img
+            src={birthday.avatar}
+            alt={birthday.name}
+            className="w-14 h-14 rounded-full object-cover flex-shrink-0 border-2 border-blue-500"
+          />
+        ) : (
+          <div
+            className={`w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 ${
+              darkMode ? "bg-blue-700" : "bg-blue-600"
+            }`}
+          >
+            <User className="w-7 h-7 text-white" />
+          </div>
+        )}
 
         {/* Name and Age */}
         <div className="flex-1 min-w-0">
@@ -54,8 +77,8 @@ const BirthdayCard = ({ birthday, onDelete }) => {
               darkMode ? "text-gray-300" : "text-gray-600"
             }`}
           >
-            {ageDetails.years} years, {ageDetails.months} months, {ageDetails.days}{" "}
-            days
+            {ageDetails.years} years, {ageDetails.months} months,{" "}
+            {ageDetails.days} days
           </p>
         </div>
       </div>
@@ -63,14 +86,10 @@ const BirthdayCard = ({ birthday, onDelete }) => {
       {/* Birth Date Section */}
       <div className="flex items-center gap-2 mb-4">
         <Calendar
-          className={`w-4 h-4 ${
-            darkMode ? "text-gray-400" : "text-gray-500"
-          }`}
+          className={`w-4 h-4 ${darkMode ? "text-gray-400" : "text-gray-500"}`}
         />
         <span
-          className={`text-sm ${
-            darkMode ? "text-gray-300" : "text-gray-700"
-          }`}
+          className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}
         >
           Born: {formattedBirthDate}
         </span>

@@ -74,3 +74,24 @@ exports.getPublicProfile = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Search users by email for autocomplete
+exports.searchUsersByEmail = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || query.trim().length < 2) {
+      return res.json([]);
+    }
+
+    const users = await User.find({
+      email: { $regex: query.trim(), $options: "i" },
+    })
+      .select("email name avatar")
+      .limit(10);
+
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

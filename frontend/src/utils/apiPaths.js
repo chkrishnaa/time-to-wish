@@ -58,5 +58,6 @@ export const API_PATHS = {
   USER: {
     GET_PROFILE: "/api/user/profile",
     UPDATE_PROFILE: "/api/user/profile",
+    SEARCH: "/api/user/search",
   },
 };

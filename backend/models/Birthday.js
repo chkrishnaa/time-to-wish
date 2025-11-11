@@ -31,6 +31,14 @@ const birthdaySchema = new mongoose.Schema({
     ref: "Collection",
     required: true,
   },
+  email: {
+    type: String,
+    default: "",
+  },
+  avatar: {
+    type: String,
+    default: "",
+  },
 });
 
 module.exports = mongoose.model("Birthday", birthdaySchema);

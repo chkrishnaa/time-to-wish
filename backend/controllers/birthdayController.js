@@ -3,7 +3,7 @@ const BirthdayInfo = require("../models/Birthday");
 // ✅ Add new birthday entry
 exports.addBirthday = async (req, res) => {
   try {
-    const { name, date, collectionId } = req.body;
+    const { name, date, collectionId, email } = req.body;
 
     if (!name || !date) {
       return res.status(400).json({ message: "Name and date are required." });
@@ -46,6 +46,16 @@ exports.addBirthday = async (req, res) => {
       (nextBirthday - today) / (1000 * 60 * 60 * 24)
     );
 
+    // If email is provided, try to fetch avatar from User model
+    let avatar = "";
+    if (email && email.trim()) {
+      const User = require("../models/User");
+      const user = await User.findOne({ email: email.trim() });
+      if (user && user.avatar) {
+        avatar = user.avatar;
+      }
+    }
+
     const newBirthday = new BirthdayInfo({
       name,
       date: birthDate,
@@ -53,6 +63,8 @@ exports.addBirthday = async (req, res) => {
       age,
       userId: req.user._id,
       collectionId: collectionId,
+      email: email ? email.trim() : "",
+      avatar: avatar,
     });
 
     await newBirthday.save();
@@ -120,7 +132,7 @@ exports.updateBirthday = async (req, res) => {
       return res.status(401).json({ message: "Authentication required." });
     }
 
-    const { name, date } = req.body;
+    const { name, date, email } = req.body;
     
     // Verify birthday belongs to user
     const existing = await BirthdayInfo.findOne({
@@ -149,9 +161,23 @@ exports.updateBirthday = async (req, res) => {
       (nextBirthday - today) / (1000 * 60 * 60 * 24)
     );
 
+    // If email is provided, try to fetch avatar from User model
+    let avatar = existing.avatar || "";
+    if (email && email.trim()) {
+      const User = require("../models/User");
+      const user = await User.findOne({ email: email.trim() });
+      if (user && user.avatar) {
+        avatar = user.avatar;
+      } else {
+        avatar = ""; // Clear avatar if user not found
+      }
+    } else {
+      avatar = ""; // Clear avatar if no email
+    }
+
     const updated = await BirthdayInfo.findByIdAndUpdate(
       req.params.id,
-      { name, date: birthDate, remainingTime, age },
+      { name, date: birthDate, remainingTime, age, email: email ? email.trim() : "", avatar: avatar },
       { new: true }
     );
 
