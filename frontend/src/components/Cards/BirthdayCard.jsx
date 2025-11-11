@@ -1,5 +1,5 @@
 import React from "react";
-import { Cake, Calendar, Trash2 } from "lucide-react";
+import { User, Calendar, Trash2 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { calculateDetailedAge, formatBirthDate } from "../../utils/helper";
 
@@ -37,7 +37,7 @@ const BirthdayCard = ({ birthday, onDelete }) => {
             darkMode ? "bg-blue-700" : "bg-blue-600"
           }`}
         >
-          <Cake className="w-7 h-7 text-white" />
+          <User className="w-7 h-7 text-white" />
         </div>
 
         {/* Name and Age */}

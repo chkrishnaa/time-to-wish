@@ -22,6 +22,27 @@ const Birthdays = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
   const [newCollectionDescription, setNewCollectionDescription] = useState("");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    // Initialize based on screen size - start collapsed on all screen sizes
+    if (typeof window !== "undefined") {
+      return true; // Start collapsed by default to give full width to content
+    }
+    return true;
+  });
+
+  // Sync sidebar collapsed state on mount and resize
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const isMobile = window.innerWidth < 640;
+      if (isMobile) {
+        setSidebarCollapsed(true);
+      }
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   const handleSelectCollection = (collection) => {
     setSelectedCollection(collection);
@@ -33,7 +54,7 @@ const Birthdays = () => {
       setLoadingCollections(true);
       const res = await axiosInstance.get(API_PATHS.COLLECTIONS.GET_ALL);
       setCollections(res.data || []);
-      
+
       // Check if collection ID is in URL params
       const collectionIdFromUrl = searchParams.get("collection");
       if (collectionIdFromUrl && res.data?.length > 0) {
@@ -43,7 +64,7 @@ const Birthdays = () => {
           return;
         }
       }
-      
+
       // Auto-select first collection if available and no collection from URL
       if (res.data?.length > 0 && !collectionIdFromUrl) {
         setSelectedCollection((prev) => {
@@ -115,13 +136,13 @@ const Birthdays = () => {
     try {
       await axiosInstance.delete(API_PATHS.COLLECTIONS.DELETE(collectionId));
       toast.success("Collection deleted");
-      
+
       // If deleted collection was selected, clear selection
       if (selectedCollection?._id === collectionId) {
         setSelectedCollection(null);
         setBirthdays([]);
       }
-      
+
       await fetchCollections();
     } catch (e) {
       toast.error("Failed to delete collection");
@@ -133,7 +154,7 @@ const Birthdays = () => {
     if (!form.name || !form.date) {
       return toast.error("Please fill all fields");
     }
-    
+
     if (!selectedCollection) {
       return toast.error("Please select a collection first");
     }
@@ -170,7 +191,11 @@ const Birthdays = () => {
     <DashboardLayout activeMenu="birthdays">
       <div className="flex gap-6 h-full min-h-0">
         {/* Collections Sidebar */}
-        <div className="w-64 flex-shrink-0 h-full overflow-y-auto">
+        <div
+          className={`${
+            sidebarCollapsed ? "w-12" : "w-64"
+          } flex-shrink-0 h-full overflow-y-auto transition-all duration-300`}
+        >
           <Sidebar
             collections={collections}
             selectedCollection={selectedCollection}
@@ -184,9 +209,10 @@ const Birthdays = () => {
             setNewCollectionDescription={setNewCollectionDescription}
             showCreateForm={showCreateForm}
             setShowCreateForm={setShowCreateForm}
+            onCollapseChange={setSidebarCollapsed}
           />
         </div>
-        
+
         {/* Main Content */}
         <div className="flex-1 min-w-0 overflow-y-auto">
           <div className="container mx-auto px-4 pt-6 pb-10 max-w-4xl">
@@ -236,8 +262,10 @@ const Birthdays = () => {
 
                 <form
                   onSubmit={handleAdd}
-                  className={`mb-8 p-4 rounded-lg ${
-                    darkMode ? "bg-gray-800" : "bg-gray-50"
+                  className={`mb-8 p-4 rounded-lg border ${
+                    darkMode
+                      ? "bg-gray-900 border-gray-700"
+                      : "bg-gray-50 border-gray-200"
                   } grid grid-cols-1 sm:grid-cols-3 gap-3`}
                 >
                   <input
@@ -283,7 +311,7 @@ const Birthdays = () => {
                   </button>
                 </form>
 
-                <div className="space-y-3">
+                <div className="space-y-3 grid sm:grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
                   {birthdays.length === 0 && (
                     <div
                       className={`text-center py-8 ${

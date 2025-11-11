@@ -105,7 +105,7 @@ const Hero = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 + index * 0.1, duration: 0.6 }}
                 className={`flex flex-col items-center space-y-2 p-4 rounded-xl ${
-                  darkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
+                  darkMode ? "hover:bg-gray-900" : "hover:bg-gray-100"
                 } transition-colors`}
               >
                 <div

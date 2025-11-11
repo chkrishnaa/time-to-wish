@@ -5,7 +5,7 @@ import { API_PATHS } from "../utils/apiPaths";
 import toast from "react-hot-toast";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import { useTheme } from "../context/ThemeContext";
-import { Folder, Plus, Trash2, Calendar } from "lucide-react";
+import { Folder, Plus, ArrowLeft, Trash2, Calendar } from "lucide-react";
 import moment from "moment";
 
 const Dashboard = () => {
@@ -126,10 +126,10 @@ const Dashboard = () => {
           {/* Create Collection Form */}
           {showCreateForm && (
             <div
-              className={`mb-8 p-6 rounded-xl border ${
+              className={`mb-8 p-6 rounded-xl border bg-gradient-to-br ${
                 darkMode
-                  ? "bg-gray-800 border-gray-700"
-                  : "bg-white border-gray-200"
+                  ? "from-gray-800 to-gray-950 border-gray-700"
+                  : "from-white to-gray-200 border-gray-200"
               } shadow-sm`}
             >
               <h3
@@ -146,7 +146,7 @@ const Dashboard = () => {
                       darkMode ? "text-gray-300" : "text-gray-700"
                     }`}
                   >
-                    Collection Name *
+                    Collection Name <span className={`${darkMode ? "text-red-400" : "text-red-500"}`}>*</span>
                   </label>
                   <input
                     type="text"
@@ -254,10 +254,10 @@ const Dashboard = () => {
               {collections.map((collection) => (
                 <div
                   key={collection._id}
-                  className={`group relative rounded-xl p-6 border cursor-pointer transition-all hover:shadow-lg ${
+                  className={`group relative rounded-xl p-6 border cursor-pointer transition-all hover:shadow-lg bg-gradient-to-br ${
                     darkMode
-                      ? "bg-gray-800 border-gray-700 hover:border-blue-600"
-                      : "bg-white border-gray-200 hover:border-blue-300"
+                      ? "from-gray-800 to-gray-950 border-gray-700 hover:border-blue-600"
+                      : "from-white to-gray-200 border-gray-300 hover:border-blue-300"
                   }`}
                   onClick={() => handleCollectionClick(collection._id)}
                 >
@@ -279,8 +279,8 @@ const Dashboard = () => {
 
                   {/* Collection Icon */}
                   <div
-                    className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 ${
-                      darkMode ? "bg-blue-700/50" : "bg-blue-100"
+                    className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-gradient-to-br ${
+                      darkMode ? "from-blue-700 to-blue-900" : "from-blue-100 to-blue-300"
                     }`}
                   >
                     <Folder
@@ -302,7 +302,7 @@ const Dashboard = () => {
                   {/* Description */}
                   {collection.description && (
                     <p
-                      className={`text-sm mb-4 text-justify line-clamp-3 ${
+                      className={`text-sm mb-4 text-justify line-clamp-4 ${
                         darkMode ? "text-gray-400" : "text-gray-600"
                       }`}
                     >

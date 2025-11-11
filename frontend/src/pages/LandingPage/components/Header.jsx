@@ -15,10 +15,11 @@ export default function Header() {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b transition-colors duration-300
-        ${
-          darkMode ? "bg-gray-950 border-gray-700 " : "bg-white border-gray-100"
-        }`}
+      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b transition-colors duration-300 ${
+            darkMode
+              ? "bg-gray-900 border-gray-700"
+              : "bg-white/80 border-gray-200"
+          }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
