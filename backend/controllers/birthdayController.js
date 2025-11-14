@@ -38,14 +38,6 @@ exports.addBirthday = async (req, res) => {
       age--;
     }
 
-    // Calculate remaining time (in days)
-    const nextBirthday = new Date(birthDate);
-    nextBirthday.setFullYear(today.getFullYear());
-    if (nextBirthday < today) nextBirthday.setFullYear(today.getFullYear() + 1);
-    const remainingTime = Math.ceil(
-      (nextBirthday - today) / (1000 * 60 * 60 * 24)
-    );
-
     // If email is provided, try to fetch avatar from User model
     let avatar = "";
     if (email && email.trim()) {
@@ -59,7 +51,6 @@ exports.addBirthday = async (req, res) => {
     const newBirthday = new BirthdayInfo({
       name,
       date: birthDate,
-      remainingTime,
       age,
       userId: req.user._id,
       collectionId: collectionId,
@@ -147,19 +138,12 @@ exports.updateBirthday = async (req, res) => {
     const today = new Date();
     const birthDate = new Date(date);
 
-    // Recalculate age and remainingTime
+    // Recalculate age
     let age = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
-
-    const nextBirthday = new Date(birthDate);
-    nextBirthday.setFullYear(today.getFullYear());
-    if (nextBirthday < today) nextBirthday.setFullYear(today.getFullYear() + 1);
-    const remainingTime = Math.ceil(
-      (nextBirthday - today) / (1000 * 60 * 60 * 24)
-    );
 
     // If email is provided, try to fetch avatar from User model
     let avatar = existing.avatar || "";
@@ -177,7 +161,7 @@ exports.updateBirthday = async (req, res) => {
 
     const updated = await BirthdayInfo.findByIdAndUpdate(
       req.params.id,
-      { name, date: birthDate, remainingTime, age, email: email ? email.trim() : "", avatar: avatar },
+      { name, date: birthDate, age, email: email ? email.trim() : "", avatar: avatar },
       { new: true }
     );
 

@@ -81,6 +81,30 @@ export const calculateDetailedAge = (birthDate) => {
   return { years, months, days };
 };
 
+// Calculate days until next birthday
+export const calculateDaysUntilBirthday = (birthDate) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to start of day
+  
+  const birth = new Date(birthDate);
+  birth.setHours(0, 0, 0, 0);
+  
+  // Get next birthday date
+  const nextBirthday = new Date(birth);
+  nextBirthday.setFullYear(today.getFullYear());
+  
+  // If birthday has already passed this year, set it to next year
+  if (nextBirthday < today) {
+    nextBirthday.setFullYear(today.getFullYear() + 1);
+  }
+  
+  // Calculate difference in days
+  const diffTime = nextBirthday - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  return diffDays;
+};
+
 // Format date as "Month Day, Year" (e.g., "October 13, 2004")
 export const formatBirthDate = (date) => {
   const d = new Date(date);

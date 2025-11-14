@@ -9,10 +9,6 @@ const birthdaySchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  remainingTime: {
-    type: Number,
-    required: true,
-  },
   age: {
     type: Number,
     required: true,

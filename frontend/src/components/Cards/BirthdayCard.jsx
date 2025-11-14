@@ -1,12 +1,44 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { User, Calendar, Trash2, Edit2 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
-import { calculateDetailedAge, formatBirthDate } from "../../utils/helper";
+import { calculateDetailedAge, formatBirthDate, calculateDaysUntilBirthday } from "../../utils/helper";
 
 const BirthdayCard = ({ birthday, onDelete, onEdit }) => {
   const { darkMode } = useTheme();
   const ageDetails = calculateDetailedAge(birthday.date);
   const formattedBirthDate = formatBirthDate(birthday.date);
+  
+  // Force re-render periodically to update days remaining
+  const [refreshKey, setRefreshKey] = useState(0);
+  
+  // Update every minute to ensure days remaining stays current
+  // Also update immediately on mount, when birthday date changes, and when page becomes visible
+  useEffect(() => {
+    // Update immediately on mount
+    setRefreshKey(prev => prev + 1);
+    
+    // Update every minute to keep countdown current
+    const interval = setInterval(() => {
+      setRefreshKey(prev => prev + 1);
+    }, 60 * 1000); // Update every minute
+
+    // Update when page becomes visible (user switches back to tab)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        setRefreshKey(prev => prev + 1);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [birthday.date]); // Re-run if birthday date changes
+
+  // Calculate days remaining - this runs on every render with fresh Date()
+  // Since we update refreshKey every minute, this will recalculate automatically
+  const daysRemaining = calculateDaysUntilBirthday(birthday.date);
 
   return (
     <div
@@ -106,7 +138,11 @@ const BirthdayCard = ({ birthday, onDelete, onEdit }) => {
             darkMode ? "text-blue-300" : "text-blue-700"
           }`}
         >
-          {birthday.remainingTime} days until birthday
+          {daysRemaining === 0 
+            ? "🎉 Today is their birthday!" 
+            : daysRemaining === 1
+            ? "1 day until birthday"
+            : `${daysRemaining} days until birthday`}
         </span>
       </div>
     </div>
