@@ -80,10 +80,13 @@ const DashboardLayout = ({ activeMenu, children }) => {
 
   const handleNavigation = (itemId) => {
     setActiveNavItem(itemId);
-    navigate(`/${itemId}`);
     if (isMobile) {
       setSideBarOpen(false); // ✅ fixed
     }
+    // Add smooth navigation with slight delay for animation
+    setTimeout(() => {
+      navigate(`/${itemId}`);
+    }, 100);
   };
 
   const toggleSidebar = () => {
@@ -285,7 +288,7 @@ const DashboardLayout = ({ activeMenu, children }) => {
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-0 sm:p-6 print:p-0 print:shadow-none">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-0 sm:p-6 print:p-0 print:shadow-none page-transition">
           {children}
         </main>
       </div>

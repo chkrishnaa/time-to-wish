@@ -3,7 +3,7 @@ import { User, Calendar, Trash2, Edit2 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { calculateDetailedAge, formatBirthDate, calculateDaysUntilBirthday } from "../../utils/helper";
 
-const BirthdayCard = ({ birthday, onDelete, onEdit }) => {
+const BirthdayCard = ({ birthday, onDelete, onEdit, style }) => {
   const { darkMode } = useTheme();
   const ageDetails = calculateDetailedAge(birthday.date);
   const formattedBirthDate = formatBirthDate(birthday.date);
@@ -42,18 +42,19 @@ const BirthdayCard = ({ birthday, onDelete, onEdit }) => {
 
   return (
     <div
-      className={`rounded-2xl p-5 border ${
+      className={`rounded-2xl p-5 border card-animate fade-in-up ${
         darkMode
           ? "border-gray-700 bg-gray-800/50"
           : "border-blue-200 bg-blue-50/50"
-      } shadow-sm hover:shadow-md transition-shadow relative`}
+      } shadow-sm hover:shadow-md relative`}
+      style={style}
     >
       {/* Edit and Delete Icons - Top Right */}
       <div className="absolute top-4 right-4 flex items-center gap-2">
         {onEdit && (
           <button
             onClick={() => onEdit(birthday)}
-            className={`p-2 rounded-lg transition-colors ${
+            className={`p-2 rounded-lg btn-animate ${
               darkMode
                 ? "hover:bg-gray-700 text-gray-400 hover:text-blue-400"
                 : "hover:bg-blue-100 text-gray-600 hover:text-blue-600"
@@ -65,7 +66,7 @@ const BirthdayCard = ({ birthday, onDelete, onEdit }) => {
         )}
         <button
           onClick={() => onDelete(birthday._id)}
-          className={`p-2 rounded-lg transition-colors ${
+          className={`p-2 rounded-lg btn-animate ${
             darkMode
               ? "hover:bg-gray-700 text-gray-400 hover:text-red-400"
               : "hover:bg-blue-100 text-gray-600 hover:text-red-600"

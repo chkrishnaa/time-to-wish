@@ -41,7 +41,7 @@ const ProfileTab = ({ profile, darkMode }) => {
   return (
     <div className="space-y-6">
       {/* Profile Picture and Basic Info */}
-      <div className="flex items-start gap-6">
+      <div className="flex items-start gap-6 fade-in-up" style={{ animationDelay: "0.1s" }}>
         <div className="relative">
           {profile.avatar ? (
             <img
@@ -87,7 +87,7 @@ const ProfileTab = ({ profile, darkMode }) => {
         </div>
         <button
           onClick={() => navigate("/profile/edit")}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-lg font-medium btn-animate flex items-center gap-2 ${
             darkMode
               ? "bg-blue-600 hover:bg-blue-700 text-white"
               : "bg-blue-600 hover:bg-blue-700 text-white"
@@ -101,9 +101,10 @@ const ProfileTab = ({ profile, darkMode }) => {
       {/* About / Bio */}
       {profile.about && (
         <div
-          className={`pt-6 border-t ${
+          className={`pt-6 border-t fade-in-up ${
             darkMode ? "border-gray-700" : "border-gray-200"
           }`}
+          style={{ animationDelay: "0.2s" }}
         >
           <label
             className={`text-sm font-medium mb-2 block ${
@@ -123,7 +124,7 @@ const ProfileTab = ({ profile, darkMode }) => {
       )}
 
       {/* Profile Details Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 fade-in-up" style={{ animationDelay: "0.3s" }}>
         {/* Phone Number */}
         <div>
           <label

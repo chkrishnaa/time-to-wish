@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Bell, Clock, Palette, Sun, Moon, Monitor } from "lucide-react";
+import CustomTimePicker from "../../../components/Input/TimePicker";
 import { useTheme } from "../../../context/ThemeContext";
 import axiosInstance from "../../../utils/axiosInstance";
 import { API_PATHS } from "../../../utils/apiPaths";
@@ -97,14 +98,14 @@ const SettingsTab = ({ profile, darkMode, onUpdate }) => {
       <button
         onClick={() => handleThemeChange(theme)}
         disabled={saving}
-        className={`relative p-4 rounded-xl border-2 transition-all ${
+        className={`relative p-4 rounded-xl border-2 transition-all duration-300 card-animate ${
           isSelected
             ? darkMode
-              ? "border-blue-500 bg-blue-900/20"
-              : "border-blue-500 bg-blue-50"
+              ? "border-blue-500 bg-blue-900/20 shadow-lg"
+              : "border-blue-500 bg-blue-50 shadow-lg"
             : darkMode
-            ? "border-gray-700 bg-gray-800/50 hover:border-gray-600"
-            : "border-gray-200 bg-white hover:border-gray-300"
+            ? "border-gray-700 bg-gray-800/50 hover:border-gray-600 hover:shadow-md"
+            : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
         } ${saving ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
       >
         <div className="flex items-center gap-3 mb-3">
@@ -166,7 +167,7 @@ const SettingsTab = ({ profile, darkMode, onUpdate }) => {
   return (
     <div className="space-y-8">
       {/* Notification Preferences */}
-      <div>
+      <div className="fade-in-up" style={{ animationDelay: "0.1s" }}>
         <div className="flex items-center gap-2 mb-4">
           <Bell
             className={`w-5 h-5 ${
@@ -182,14 +183,15 @@ const SettingsTab = ({ profile, darkMode, onUpdate }) => {
           </h3>
         </div>
         <div className=" grid grid-cols-2 sm:grid-cols-4">
-          {["Email", "SMS", "Push", "All"].map((option) => (
+          {["Email", "SMS", "Push", "All"].map((option, index) => (
             <label
               key={option}
-              className={`flex items-center gap-2 cursor-pointer p-2 rounded-lg ${
+              className={`flex items-center gap-2 cursor-pointer p-2 rounded-lg transition-all duration-300 hover:scale-105 active:scale-95 fade-in-up ${
                 darkMode
                   ? "hover:bg-gray-700/50"
                   : "hover:bg-gray-100"
-              } transition-colors`}
+              }`}
+              style={{ animationDelay: `${0.15 + index * 0.05}s` }}
             >
               <input
                 type="checkbox"
@@ -214,7 +216,7 @@ const SettingsTab = ({ profile, darkMode, onUpdate }) => {
         <button
           onClick={handleNotificationSave}
           disabled={saving}
-          className={`mt-4 px-4 py-2 rounded-lg font-medium transition-colors ${
+          className={`mt-4 px-4 py-2 rounded-lg font-medium btn-animate ${
             saving
               ? "bg-gray-400 cursor-not-allowed text-white"
               : darkMode
@@ -227,7 +229,7 @@ const SettingsTab = ({ profile, darkMode, onUpdate }) => {
       </div>
 
       {/* Reminder Settings */}
-      <div>
+      <div className="fade-in-up" style={{ animationDelay: "0.2s" }}>
         <div className="flex items-center gap-2 mb-4">
           <Clock
             className={`w-5 h-5 ${
@@ -242,32 +244,42 @@ const SettingsTab = ({ profile, darkMode, onUpdate }) => {
             Set Reminder
           </h3>
         </div>
-        <div className="flex items-center gap-3">
-          <input
-            type="time"
-            value={remindMeTime}
-            onChange={(e) => handleReminderChange(e.target.value)}
-            disabled={saving}
-            className={`px-4 py-2 rounded-lg border ${
-              darkMode
-                ? "bg-gray-700 text-gray-200 border-gray-600"
-                : "bg-white text-gray-900 border-gray-300"
-            } focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              saving ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          />
-          <span
-            className={`text-sm ${
-              darkMode ? "text-gray-400" : "text-gray-600"
-            }`}
-          >
-            Daily reminder time
-          </span>
+        <div className={`p-4 rounded-xl border transition-all duration-300 ${
+          darkMode
+            ? "bg-gray-800/50 border-gray-700 hover:border-gray-600"
+            : "bg-gray-50/50 border-gray-200 hover:border-gray-300"
+        }`}>
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1 max-w-xs">
+              <CustomTimePicker
+                value={remindMeTime}
+                onChange={handleReminderChange}
+                disabled={saving}
+                placeholder="Select reminder time"
+              />
+            </div>
+            <div className="flex-1">
+              <p
+                className={`text-sm font-medium mb-1 ${
+                  darkMode ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                Daily reminder time
+              </p>
+              <p
+                className={`text-xs ${
+                  darkMode ? "text-gray-400" : "text-gray-500"
+                }`}
+              >
+                You'll receive notifications at this time every day
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Accessibility - Theme */}
-      <div>
+      <div className="fade-in-up" style={{ animationDelay: "0.3s" }}>
         <div className="flex items-center gap-2 mb-4">
           <Palette
             className={`w-5 h-5 ${

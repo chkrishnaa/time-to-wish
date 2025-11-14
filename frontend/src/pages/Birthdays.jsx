@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import CustomDatePicker from "../components/Input/DatePicker";
 import BirthdayCard from "../components/Cards/BirthdayCard";
 import axiosInstance from "../utils/axiosInstance";
 import { API_PATHS } from "../utils/apiPaths";
@@ -23,6 +24,7 @@ const Birthdays = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [form, setForm] = useState({ name: "", date: "", email: "" });
+  const [originalForm, setOriginalForm] = useState({ name: "", date: "", email: "" });
   const [editingBirthday, setEditingBirthday] = useState(null);
   const [editingCollection, setEditingCollection] = useState(null);
   const [isAddBirthdayOpen, setIsAddBirthdayOpen] = useState(false);
@@ -230,21 +232,39 @@ const Birthdays = () => {
 
   const handleEditBirthday = (birthday) => {
     setEditingBirthday(birthday);
-    setForm({
-      name: birthday.name,
-      date: birthday.date,
+    // Format date for date input (YYYY-MM-DD)
+    const formattedDate = birthday.date 
+      ? new Date(birthday.date).toISOString().split('T')[0]
+      : "";
+    const formData = {
+      name: birthday.name || "",
+      date: formattedDate,
       email: birthday.email || "",
-    });
+    };
+    setForm(formData);
+    setOriginalForm(formData); // Store original values for change detection
     setIsAddBirthdayOpen(true); // Open the form when editing
   };
+
+  // Check if form has changes
+  const hasChanges = editingBirthday ? (
+    form.name !== originalForm.name ||
+    form.date !== originalForm.date ||
+    form.email !== originalForm.email
+  ) : (form.name.trim() && form.date.trim());
 
   const handleUpdateBirthday = async (e) => {
     e.preventDefault();
     if (!form.name || !form.date) {
-      return toast.error("Please fill all fields");
+      return toast.error("Name and Date of Birth are required");
     }
 
     if (!editingBirthday) return;
+    
+    // Check if there are any changes
+    if (!hasChanges) {
+      return toast.error("No changes to update");
+    }
 
     setLoading(true);
     try {
@@ -255,6 +275,7 @@ const Birthdays = () => {
       });
       toast.success("Birthday updated!");
       setForm({ name: "", date: "", email: "" });
+      setOriginalForm({ name: "", date: "", email: "" });
       setEditingBirthday(null);
       setIsAddBirthdayOpen(false);
       if (selectedCollection) {
@@ -285,6 +306,7 @@ const Birthdays = () => {
       });
       toast.success("Birthday added");
       setForm({ name: "", date: "", email: "" });
+      setOriginalForm({ name: "", date: "", email: "" });
       setEditingBirthday(null);
       setIsAddBirthdayOpen(false);
       fetchBirthdays(selectedCollection._id);
@@ -360,7 +382,7 @@ const Birthdays = () => {
                 </p>
                 <button
                   onClick={() => navigate("/dashboard")}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-md hover:shadow-lg"
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium btn-animate shadow-md hover:shadow-lg"
                 >
                   Create Your First Collection
                 </button>
@@ -401,50 +423,76 @@ const Birthdays = () => {
                     <div className="sm:col-span-3">
                     
                     </div>
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      className={`rounded-lg px-3 py-2 ${
-                        darkMode
-                          ? "bg-gray-700 text-gray-200 border-gray-600"
-                          : "bg-white text-gray-900 border-gray-300"
-                      } border focus:outline-none focus:ring-2 focus:ring-blue-500 sm:col-span-2`}
-                      value={form.name}
-                      onChange={(e) =>
-                        setForm({ ...form, name: e.target.value })
-                      }
-                    />
-                    <input
-                      type="date"
-                      max={new Date().toISOString().split("T")[0]}
-                      className={`rounded-lg px-3 py-2 ${
-                        darkMode
-                          ? "bg-gray-700 text-gray-200 border-gray-600"
-                          : "bg-white text-gray-900 border-gray-300"
-                      } border focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                      value={form.date}
-                      onChange={(e) => {
-                        const selectedDate = e.target.value;
-                        const today = new Date().toISOString().split("T")[0];
-                        // Only allow dates up to today
-                        if (selectedDate <= today) {
-                          setForm({ ...form, date: selectedDate });
+                    <div className="sm:col-span-2">
+                      <label className={`block text-xs font-medium mb-1 ${
+                        darkMode ? "text-gray-300" : "text-gray-700"
+                      }`}>
+                        Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter name"
+                        required
+                        className={`w-full rounded-lg px-3 py-2 ${
+                          darkMode
+                            ? "bg-gray-700 text-gray-200 border-gray-600"
+                            : "bg-white text-gray-900 border-gray-300"
+                        } border focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                        value={form.name}
+                        onChange={(e) =>
+                          setForm({ ...form, name: e.target.value })
                         }
-                      }}
-                      placeholder="dd/mm/yyyy"
-                    />
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-xs font-medium mb-1 ${
+                        darkMode ? "text-gray-300" : "text-gray-700"
+                      }`}>
+                        Date of Birth <span className="text-red-500">*</span>
+                      </label>
+                      <CustomDatePicker
+                        value={form.date}
+                        onChange={(date) => {
+                          const today = new Date().toISOString().split("T")[0];
+                          // Only allow dates up to today
+                          if (date <= today) {
+                            setForm({ ...form, date });
+                          }
+                        }}
+                        maxDate={new Date().toISOString().split("T")[0]}
+                        required
+                        placeholder="Select date of birth"
+                      />
+                    </div>
                     <div className="sm:col-span-3">
+                      <label className={`block text-xs font-medium mb-1 ${
+                        darkMode ? "text-gray-300" : "text-gray-700"
+                      }`}>
+                        Email (Optional)
+                      </label>
                       <EmailAutocomplete
                         value={form.email}
-                        onChange={(email) => setForm({ ...form, email })}
+                        onChange={(email, userData) => {
+                          // If userData is provided (from autocomplete selection), auto-fill name
+                          if (userData && userData.name) {
+                            setForm(prev => ({ 
+                              ...prev, 
+                              email, 
+                              name: prev.name.trim() ? prev.name : userData.name // Only auto-fill if name is empty
+                            }));
+                          } else {
+                            // Just update email when typing
+                            setForm(prev => ({ ...prev, email }));
+                          }
+                        }}
                         placeholder="@"
                       />
                     </div>
                     <div className="flex gap-2 sm:col-span-3">
                       <button
-                        disabled={loading}
-                        className={`flex-1 rounded-lg px-4 py-2 text-white font-medium transition-colors ${
-                          loading
+                        disabled={loading || (editingBirthday && !hasChanges) || !form.name.trim() || !form.date}
+                        className={`flex-1 rounded-lg px-4 py-2 text-white font-medium btn-animate ${
+                          loading || (editingBirthday && !hasChanges) || !form.name.trim() || !form.date
                             ? "bg-gray-400 cursor-not-allowed"
                             : "bg-blue-600 hover:bg-blue-700"
                         }`}
@@ -463,10 +511,11 @@ const Birthdays = () => {
                           type="button"
                           onClick={() => {
                             setForm({ name: "", date: "", email: "" });
+                            setOriginalForm({ name: "", date: "", email: "" });
                             setEditingBirthday(null);
                             setIsAddBirthdayOpen(false);
                           }}
-                          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                          className={`px-4 py-2 rounded-lg font-medium btn-animate ${
                             darkMode
                               ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
                               : "bg-gray-200 hover:bg-gray-300 text-gray-700"
@@ -541,12 +590,13 @@ const Birthdays = () => {
                 ) : (
                   <>
                     <div className="grid sm:grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-3">
-                      {paginatedBirthdays.map((b) => (
+                      {paginatedBirthdays.map((b, index) => (
                         <BirthdayCard
                           key={b._id}
                           birthday={b}
                           onDelete={handleDelete}
                           onEdit={handleEditBirthday}
+                          style={{ animationDelay: `${(index % 6) * 0.1}s` }}
                         />
                       ))}
                     </div>

@@ -101,7 +101,8 @@ const Sidebar = ({
     return (
       <>
         <div
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent event bubbling
             if (isMobile) {
               setShowMobileModal(true);
             } else {
@@ -116,7 +117,7 @@ const Sidebar = ({
             darkMode
               ? "border-gray-700 from-gray-800 to-gray-950 hover:from-gray-750 hover:to-gray-900"
               : "border-gray-200 from-white to-gray-200 hover:from-gray-50 hover:to-gray-100"
-          } rounded-none sm:rounded-lg transition-all duration-300`}
+          } rounded-none sm:rounded-lg sidebar-transition hover:scale-105 active:scale-95`}
         >
           <div
             className={`writing-vertical text-sm font-semibold ${
@@ -145,7 +146,7 @@ const Sidebar = ({
 
               {/* Modal Content */}
               <div
-                className={`relative w-80 h-full shadow-xl overflow-y-auto ${
+                className={`relative w-80 h-full shadow-xl overflow-y-auto slide-in-left ${
                   darkMode ? "bg-gray-900" : "bg-white"
                 }`}
                 onClick={(e) => e.stopPropagation()}
@@ -160,12 +161,15 @@ const Sidebar = ({
                       My Collections
                     </h2>
                     <button
-                      onClick={() => setShowMobileModal(false)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowMobileModal(false);
+                      }}
                       className={`p-2 rounded-lg ${
                         darkMode
                           ? "hover:bg-gray-700 text-gray-300"
                           : "hover:bg-gray-100 text-gray-600"
-                      } transition-colors`}
+                      } transition-all duration-300 hover:scale-110 active:scale-95 btn-animate`}
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -215,11 +219,11 @@ const Sidebar = ({
                         <button
                           onClick={onCreateCollection}
                           disabled={!newCollectionName.trim() || isCreating}
-                          className={`flex-1 px-3 py-1.5 text-sm rounded-lg ${
+                          className={`flex-1 px-3 py-1.5 text-sm rounded-lg btn-animate ${
                             !newCollectionName.trim() || isCreating
                               ? "bg-gray-400 cursor-not-allowed"
                               : "bg-blue-600 hover:bg-blue-700 text-white"
-                          } transition-colors`}
+                          }`}
                         >
                           {isCreating
                             ? "Saving..."
@@ -236,11 +240,11 @@ const Sidebar = ({
                               onEditCollection(null); // Clear editing state
                             }
                           }}
-                          className={`px-3 py-1.5 text-sm rounded-lg ${
+                          className={`px-3 py-1.5 text-sm rounded-lg btn-animate ${
                             darkMode
                               ? "bg-gray-600 hover:bg-gray-500 text-gray-200"
                               : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                          } transition-colors`}
+                          }`}
                         >
                           Cancel
                         </button>
@@ -263,7 +267,7 @@ const Sidebar = ({
                       filteredCollections.map((collection) => (
                         <div
                           key={collection._id}
-                          className={`group flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
+                          className={`group flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] ${
                             selectedCollection?._id === collection._id
                               ? darkMode
                                 ? "bg-blue-600 text-white"
@@ -338,11 +342,11 @@ const Sidebar = ({
 
                   <button
                     onClick={() => setShowCreateForm(!showCreateForm)}
-                    className={`mt-4 w-full py-2 rounded-lg flex items-center justify-center gap-2 ${
+                    className={`mt-4 w-full py-2 rounded-lg flex items-center justify-center gap-2 btn-animate ${
                       darkMode
                         ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
                         : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                    } transition-colors`}
+                    }`}
                   >
                     <Plus className="w-5 h-5" />
                     <span>Create Collection</span>
@@ -363,13 +367,14 @@ const Sidebar = ({
         darkMode
           ? "border-gray-700 from-gray-800 to-gray-950"
           : "border-gray-200 from-white to-gray-200"
-      } rounded-none sm:rounded-lg transition-all duration-300`}
+      } rounded-none sm:rounded-lg sidebar-transition`}
     >
       <div className="p-4 h-full flex flex-col">
         {/* Collapse Button - Full Width */}
         {!isMobile && (
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent event bubbling
               setIsCollapsed(true);
               if (onCollapseChange) {
                 onCollapseChange(true);
@@ -379,7 +384,7 @@ const Sidebar = ({
               darkMode
                 ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-            } transition-colors`}
+            } transition-all duration-300 hover:scale-105 active:scale-95 btn-animate`}
             title="Collapse sidebar"
           >
             <div className="flex items-center justify-center text-2xl transform scale-x-600 scale-y-100">⟺</div>
@@ -396,11 +401,11 @@ const Sidebar = ({
           </h2>
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className={`p-2 rounded-lg ${
+            className={`p-2 rounded-lg btn-animate ${
               darkMode
                 ? "hover:bg-gray-700 text-gray-300"
                 : "hover:bg-gray-100 text-gray-600"
-            } transition-colors`}
+            }`}
             title="Create Collection"
           >
             <Plus className="w-5 h-5" />
@@ -447,11 +452,11 @@ const Sidebar = ({
               <button
                 onClick={onCreateCollection}
                 disabled={!newCollectionName.trim() || isCreating}
-                className={`flex-1 px-3 py-1.5 text-sm rounded-lg ${
+                className={`flex-1 px-3 py-1.5 text-sm rounded-lg btn-animate ${
                   !newCollectionName.trim() || isCreating
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-blue-600 hover:bg-blue-700 text-white"
-                } transition-colors`}
+                }`}
               >
                 {isCreating
                   ? "Saving..."
@@ -468,11 +473,11 @@ const Sidebar = ({
                     onEditCollection(null); // Clear editing state
                   }
                 }}
-                className={`px-3 py-1.5 text-sm rounded-lg ${
+                className={`px-3 py-1.5 text-sm rounded-lg btn-animate ${
                   darkMode
                     ? "bg-gray-600 hover:bg-gray-500 text-gray-200"
                     : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                } transition-colors`}
+                }`}
               >
                 Cancel
               </button>
@@ -492,10 +497,10 @@ const Sidebar = ({
                 : "No collections found."}
             </p>
           ) : (
-            filteredCollections.map((collection) => (
+            filteredCollections.map((collection, index) => (
               <div
                 key={collection._id}
-                className={`group flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
+                className={`group flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] fade-in-up ${
                   selectedCollection?._id === collection._id
                     ? darkMode
                       ? "bg-blue-600 text-white"
@@ -505,6 +510,7 @@ const Sidebar = ({
                     : "hover:bg-gray-100 text-gray-700"
                 }`}
                 onClick={() => handleCollectionClick(collection)}
+                style={{ animationDelay: `${(index % 6) * 0.05}s` }}
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <Folder className="w-4 h-4 flex-shrink-0" />
@@ -519,13 +525,13 @@ const Sidebar = ({
                         e.stopPropagation();
                         onEditCollection(collection);
                       }}
-                      className={`opacity-0 group-hover:opacity-100 p-1 rounded ${
+                      className={`opacity-0 group-hover:opacity-100 p-1 rounded btn-animate ${
                         selectedCollection?._id === collection._id
                           ? "hover:bg-blue-700 text-white"
                           : darkMode
                           ? "hover:bg-gray-600 text-gray-400"
                           : "hover:bg-gray-200 text-gray-500"
-                      } transition-opacity`}
+                      }`}
                       title="Edit collection"
                     >
                       <Edit2 className="w-4 h-4" />
@@ -542,13 +548,13 @@ const Sidebar = ({
                         onDeleteCollection(collection._id);
                       }
                     }}
-                    className={`opacity-0 group-hover:opacity-100 p-1 rounded ${
+                    className={`opacity-0 group-hover:opacity-100 p-1 rounded btn-animate ${
                       selectedCollection?._id === collection._id
                         ? "hover:bg-blue-700 text-white"
                         : darkMode
                         ? "hover:bg-gray-600 text-gray-400"
                         : "hover:bg-gray-200 text-gray-500"
-                    } transition-opacity`}
+                    }`}
                     title="Delete collection"
                   >
                     <Trash2 className="w-4 h-4" />

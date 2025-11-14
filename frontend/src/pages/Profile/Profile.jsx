@@ -89,9 +89,9 @@ const Profile = () => {
 
   return (
     <DashboardLayout activeMenu="profile">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto page-transition">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 fade-in-down">
           <h1
             className={`text-3xl font-bold mb-2 ${
               darkMode ? "text-gray-100" : "text-gray-900"
@@ -109,22 +109,22 @@ const Profile = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="mb-6">
+        <div className="mb-6 fade-in-up" style={{ animationDelay: "0.1s" }}>
           <div
-            className={`flex gap-2 p-1 rounded-lg bg-gradient-to-br ${
+            className={`flex gap-2 p-1 rounded-lg bg-gradient-to-br transition-all duration-300 ${
               darkMode ? "from-gray-800 to-gray-950" : "bg-gray-100"
             }`}
           >
             <button
               onClick={() => setActiveTab("profile")}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-300 btn-animate ${
                 activeTab === "profile"
                   ? darkMode
-                    ? "bg-blue-600 text-white"
-                    : "bg-blue-600 text-white"
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "bg-blue-600 text-white shadow-lg"
                   : darkMode
-                  ? "text-gray-400 hover:text-gray-200"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
               }`}
             >
               <User className="w-4 h-4" />
@@ -132,14 +132,14 @@ const Profile = () => {
             </button>
             <button
               onClick={() => setActiveTab("settings")}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-300 btn-animate ${
                 activeTab === "settings"
                   ? darkMode
-                    ? "bg-blue-600 text-white"
-                    : "bg-blue-600 text-white"
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "bg-blue-600 text-white shadow-lg"
                   : darkMode
-                  ? "text-gray-400 hover:text-gray-200"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
               }`}
             >
               <Settings className="w-4 h-4" />
@@ -150,11 +150,12 @@ const Profile = () => {
 
         {/* Tab Content */}
         <div
-          className={`rounded-xl border p-6 bg-gradient-to-br ${
+          className={`rounded-xl border p-6 bg-gradient-to-br transition-all duration-300 fade-in-up card-animate ${
             darkMode
               ? "from-gray-800 to-gray-950 border-gray-700"
               : "from-gray-100 to-blue-200 border-blue-300"
           } shadow-sm`}
+          style={{ animationDelay: "0.2s" }}
         >
           {activeTab === "profile" ? (
             <ProfileTab profile={profile} darkMode={darkMode} />

@@ -8,5 +8,8 @@ export default defineConfig({
   // Ensure environment variables are available
   define: {
     'process.env': {}
-  }
+  },
+  optimizeDeps: {
+    include: ['@emotion/react', '@emotion/styled'],
+  },
 })

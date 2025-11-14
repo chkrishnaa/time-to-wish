@@ -20,6 +20,7 @@ const Dashboard = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
   const [newCollectionDescription, setNewCollectionDescription] = useState("");
+  const [originalCollectionData, setOriginalCollectionData] = useState({ name: "", description: "" });
   const [selectedCollection, setSelectedCollection] = useState(null);
   const [filteredCollections, setFilteredCollections] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -70,10 +71,19 @@ const Dashboard = () => {
 
   const handleEditCollection = (collection) => {
     setEditingCollection(collection);
-    setNewCollectionName(collection.name);
-    setNewCollectionDescription(collection.description || "");
+    const name = collection.name || "";
+    const description = collection.description || "";
+    setNewCollectionName(name);
+    setNewCollectionDescription(description);
+    setOriginalCollectionData({ name, description }); // Store original for change detection
     setShowCreateForm(true);
   };
+
+  // Check if collection form has changes
+  const hasCollectionChanges = editingCollection ? (
+    newCollectionName !== originalCollectionData.name ||
+    newCollectionDescription !== originalCollectionData.description
+  ) : newCollectionName.trim().length > 0;
 
   const handleUpdateCollection = async () => {
     if (!newCollectionName.trim()) {
@@ -82,6 +92,11 @@ const Dashboard = () => {
     }
 
     if (!editingCollection) return;
+    
+    // Check if there are any changes
+    if (!hasCollectionChanges) {
+      return toast.error("No changes to update");
+    }
 
     setCreatingCollection(true);
     try {
@@ -95,6 +110,7 @@ const Dashboard = () => {
       toast.success("Collection updated!");
       setNewCollectionName("");
       setNewCollectionDescription("");
+      setOriginalCollectionData({ name: "", description: "" });
       setShowCreateForm(false);
       setEditingCollection(null);
       await fetchCollections();
@@ -253,9 +269,9 @@ const Dashboard = () => {
                       ? handleUpdateCollection
                       : handleCreateCollection
                   }
-                  disabled={!newCollectionName.trim() || creatingCollection}
-                  className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                    !newCollectionName.trim() || creatingCollection
+                  disabled={!newCollectionName.trim() || creatingCollection || (editingCollection && !hasCollectionChanges)}
+                  className={`px-6 py-2 rounded-lg font-medium btn-animate ${
+                    !newCollectionName.trim() || creatingCollection || (editingCollection && !hasCollectionChanges)
                       ? "bg-gray-400 cursor-not-allowed text-white"
                       : "bg-blue-600 hover:bg-blue-700 text-white"
                   }`}
@@ -273,9 +289,10 @@ const Dashboard = () => {
                     setShowCreateForm(false);
                     setNewCollectionName("");
                     setNewCollectionDescription("");
+                    setOriginalCollectionData({ name: "", description: "" });
                     setEditingCollection(null);
                   }}
-                  className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                  className={`px-6 py-2 rounded-lg font-medium btn-animate ${
                     darkMode
                       ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
                       : "bg-gray-200 hover:bg-gray-300 text-gray-700"
@@ -316,7 +333,7 @@ const Dashboard = () => {
             </p>
             <button
               onClick={() => setShowCreateForm(true)}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium btn-animate"
             >
               Create Your First Collection
             </button>
@@ -385,12 +402,13 @@ const Dashboard = () => {
                   {paginatedCollections.map((collection) => (
                     <div
                       key={collection._id}
-                      className={`group relative rounded-xl p-6 border cursor-pointer transition-all hover:shadow-lg bg-gradient-to-br ${
+                      className={`group relative rounded-xl p-6 border cursor-pointer card-animate fade-in-up bg-gradient-to-br ${
                         darkMode
                           ? "from-gray-800 to-gray-950 border-gray-700 hover:border-blue-600"
                           : "from-white to-gray-200 border-gray-300 hover:border-blue-300"
                       }`}
                       onClick={() => handleCollectionClick(collection._id)}
+                      style={{ animationDelay: `${(paginatedCollections.indexOf(collection) % 6) * 0.1}s` }}
                     >
                       {/* Edit Button */}
                       <button
@@ -398,7 +416,7 @@ const Dashboard = () => {
                           e.stopPropagation();
                           handleEditCollection(collection);
                         }}
-                        className={`absolute top-4 right-12 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity ${
+                        className={`absolute top-4 right-12 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 btn-animate ${
                           darkMode
                             ? "hover:bg-gray-700 text-gray-400 hover:text-blue-400"
                             : "hover:bg-gray-100 text-gray-500 hover:text-blue-600"
@@ -417,7 +435,7 @@ const Dashboard = () => {
                             collection.name
                           );
                         }}
-                        className={`absolute top-4 right-4 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity ${
+                        className={`absolute top-4 right-4 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 btn-animate ${
                           darkMode
                             ? "hover:bg-gray-700 text-gray-400 hover:text-red-400"
                             : "hover:bg-gray-100 text-gray-500 hover:text-red-600"

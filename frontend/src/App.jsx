@@ -28,6 +28,7 @@ export default function App() {
     <AuthProvider>
       <ThemeProvider>
         <Router>
+          <div className="page-transition">
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
@@ -67,6 +68,7 @@ export default function App() {
 
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
+          </div>
         </Router>
 
         <Toaster

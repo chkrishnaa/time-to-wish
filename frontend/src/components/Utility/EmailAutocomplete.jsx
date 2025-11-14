@@ -4,7 +4,7 @@ import { useTheme } from "../../context/ThemeContext";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 
-const EmailAutocomplete = ({ value, onChange, placeholder = "@" }) => {
+const EmailAutocomplete = ({ value, onChange, placeholder = "@", onUserSelect }) => {
   const { darkMode } = useTheme();
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -51,8 +51,9 @@ const EmailAutocomplete = ({ value, onChange, placeholder = "@" }) => {
     return () => clearTimeout(debounceTimer);
   }, [value]);
 
-  const handleSelect = (email) => {
-    onChange(email);
+  const handleSelect = (user) => {
+    // Pass both email and full user data to onChange
+    onChange(user.email, user);
     setShowSuggestions(false);
     if (inputRef.current) {
       inputRef.current.blur();
@@ -60,7 +61,7 @@ const EmailAutocomplete = ({ value, onChange, placeholder = "@" }) => {
   };
 
   const handleClear = () => {
-    onChange("");
+    onChange(""); // Pass empty string when clearing
     setSuggestions([]);
     setShowSuggestions(false);
     if (inputRef.current) {
@@ -81,7 +82,10 @@ const EmailAutocomplete = ({ value, onChange, placeholder = "@" }) => {
           type="email"
           placeholder={placeholder}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => {
+            const emailValue = e.target.value;
+            onChange(emailValue); // Pass just email string when typing
+          }}
           onFocus={() => {
             if (suggestions.length > 0) {
               setShowSuggestions(true);
@@ -120,7 +124,7 @@ const EmailAutocomplete = ({ value, onChange, placeholder = "@" }) => {
           {suggestions.map((user, index) => (
             <div
               key={index}
-              onClick={() => handleSelect(user.email)}
+              onClick={() => handleSelect(user)}
               className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
                 darkMode
                   ? "hover:bg-gray-700"
