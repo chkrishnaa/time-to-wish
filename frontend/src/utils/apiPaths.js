@@ -1,3 +1,5 @@
+// API Base URL - Uses environment variable or defaults to localhost
+// Set VITE_API_URL in Vercel for production deployment
 export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export const API_PATHS = {
